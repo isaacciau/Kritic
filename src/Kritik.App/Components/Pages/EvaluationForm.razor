@@ -1,0 +1,226 @@
+@page "/evaluate/{ProjectId}"
+@using Kritik.Shared.Models
+@using Kritik.App.Services
+@inject ProjectService ProjectService
+@inject EvaluationService EvaluationService
+@inject NavigationManager NavigationManager
+
+<div class="evaluation-container">
+    <h3 class="tech-blue-text">Evaluando Proyecto</h3>
+    
+    @if (hasVoted)
+    {
+        <div class="alert-warning">
+            <h3>⚠️ Ya has evaluado este proyecto</h3>
+            <p>Solo se permite una evaluación por proyecto para mantener la integridad de los resultados.</p>
+            <button class="btn btn-primary" @onclick="GoBack">Volver a la lista</button>
+        </div>
+    }
+    else if (project != null)
+    {
+        <div class="project-info card">
+            <h4>@project.TeamName</h4>
+            <p>@project.Description</p>
+            <span class="category-badge">@project.Category</span>
+        </div>
+
+        <EditForm Model="@evaluation" OnValidSubmit="HandleSubmit">
+            <DataAnnotationsValidator />
+
+            <div class="criteria-section">
+                <!-- Rúbrica de Innovación -->
+                <div class="rubric-item">
+                    <label>Innovación (1-5)</label>
+                    <div class="range-slider">
+                        <input type="range" class="form-range" min="1" max="5" @bind="evaluation.Scores.Innovation" @bind:event="oninput" />
+                        <span class="range-value">@evaluation.Scores.Innovation</span>
+                    </div>
+                </div>
+
+                <!-- Rúbrica de Usabilidad -->
+                <div class="rubric-item">
+                    <label>Usabilidad (1-5)</label>
+                    <div class="range-slider">
+                        <input type="range" class="form-range" min="1" max="5" @bind="evaluation.Scores.Usability" @bind:event="oninput" />
+                        <span class="range-value">@evaluation.Scores.Usability</span>
+                    </div>
+                </div>
+
+                <!-- Rúbrica de Complejidad -->
+                <div class="rubric-item">
+                    <label>Complejidad Técnica (1-5)</label>
+                    <div class="range-slider">
+                        <input type="range" class="form-range" min="1" max="5" @bind="evaluation.Scores.TechnicalComplexity" @bind:event="oninput" />
+                        <span class="range-value">@evaluation.Scores.TechnicalComplexity</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="comments-section">
+                <label>Notas de Retroalimentación</label>
+                <InputTextArea @bind-Value="evaluation.Feedback" class="form-control" 
+                               placeholder="Escribe observaciones rápidas aquí..." rows="4" />
+            </div>
+
+            <button type="submit" class="btn-emerald" disabled="@isSubmitting">
+                @if (isSubmitting) { <span>Enviando...</span> } else { <span>Confirmar Evaluación</span> }
+            </button>
+        </EditForm>
+    }
+    else
+    {
+         <div class="loading">Cargando proyecto...</div>
+    }
+</div>
+
+<style>
+    .evaluation-container {
+        padding: 2rem;
+        max-width: 800px;
+        margin: 0 auto;
+    }
+
+    .project-info {
+        margin-bottom: 2rem;
+    }
+    
+    .project-info h4 {
+        color: var(--primary-blue);
+        margin-top: 0;
+    }
+
+    .category-badge {
+        background-color: var(--warning-orange);
+        color: #000;
+        padding: 0.25rem 0.5rem;
+        border-radius: 4px;
+        font-size: 0.8rem;
+    }
+
+    .criteria-section, .comments-section {
+        margin-bottom: 1.5rem;
+        background-color: var(--card-bg);
+        padding: 1.5rem;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+
+    .rubric-item {
+        margin-bottom: 1.5rem;
+    }
+
+    .rubric-item:last-child {
+        margin-bottom: 0;
+    }
+
+    .rubric-item label, .comments-section label {
+        display: block;
+        font-weight: bold;
+        margin-bottom: 0.5rem;
+        color: var(--text-color);
+    }
+
+    .range-slider {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .form-range {
+        flex-grow: 1;
+        cursor: pointer;
+    }
+
+    .range-value {
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: var(--primary-blue);
+        width: 30px;
+        text-align: center;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ced4da;
+        border-radius: 4px;
+        background-color: var(--bg-color);
+        color: var(--text-color);
+    }
+</style>
+
+@code {
+    [Parameter] public string ProjectId { get; set; } = null!;
+    @inject ValidationService ValidationService
+    @inject ToastService ToastService
+
+    private Project? project;
+    private Evaluation evaluation = new();
+    private bool isSubmitting = false;
+    private bool hasVoted = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        // 1. Cargar datos básicos
+        evaluation.ProjectId = ProjectId;
+        // En una app real, esto vendría del LoginState o Preferences
+        evaluation.EvaluatorId = Preferences.Default.Get("UserId", "mobile-kiosk-user"); 
+        evaluation.Scores = new RubricScores { Innovation = 3, Usability = 3, TechnicalComplexity = 3 };
+
+        // 2. Verificar elegibilidad (Local + API)
+        hasVoted = await ValidationService.HasVotedAsync(ProjectId, evaluation.EvaluatorId);
+        
+        if (hasVoted)
+        {
+            return;
+        }
+
+        project = await ProjectService.GetProjectByIdAsync(ProjectId);
+    }
+
+
+
+    private async Task HandleSubmit()
+    {
+        if (hasVoted) 
+        {
+            ToastService.Show("Ya has evaluado este proyecto", "error");
+            return;
+        }
+
+        // Validar integridad de datos (Regla de negocio: Rango correcto)
+        if (!ValidationService.IsScoreValid(evaluation.Scores.Innovation) ||
+            !ValidationService.IsScoreValid(evaluation.Scores.Usability) ||
+            !ValidationService.IsScoreValid(evaluation.Scores.TechnicalComplexity))
+        {
+            ToastService.Show("Por favor, verifica que los puntajes sean válidos (1-5)", "error");
+            return;
+        }
+
+        isSubmitting = true;
+        
+        // Envío inmediato para evitar el procesamiento manual
+        var success = await EvaluationService.SubmitEvaluationAsync(evaluation);
+        if (success)
+        {
+            // Registrar el voto localmente
+            ValidationService.RegisterVote(ProjectId);
+            ToastService.Show("¡Evaluación sincronizada con éxito!", "success");
+            
+            // Esperar un momento para que el usuario vea el toast antes de navegar
+            await Task.Delay(2000);
+            NavigationManager.NavigateTo("/projects");
+        }
+        else
+        {
+             ToastService.Show("Error al sincronizar. Intenta de nuevo.", "error");
+        }
+        
+        isSubmitting = false;
+    }
+
+    private void GoBack()
+    {
+        NavigationManager.NavigateTo("/projects");
+    }
+}

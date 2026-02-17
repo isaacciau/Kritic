@@ -1,0 +1,87 @@
+@page "/resultados"
+@using Kritik.Shared.Models
+@using Kritik.App.Services
+@inject ProjectService ProjectService
+@implements IDisposable
+
+<div class="results-container">
+    <h3 class="tech-blue-text">Ranking de Proyectos en Vivo</h3>
+    <p class="stats-overview">Integridad de Datos: <span class="highlight">@integrityRate.ToString("P1")</span></p>
+
+    @if (rankedProjects == null)
+    {
+        <div class="loading">Sincronizando métricas...</div>
+    }
+    else
+    {
+        <div class="ranking-list">
+            @foreach (var (project, index) in rankedProjects.Select((p, i) => (p, i)))
+            {
+                <div class="ranking-item @(index == 0 ? "top-project" : "")">
+                    <div class="rank-number">#@(index + 1)</div>
+                    <div class="project-details">
+                        <span class="project-name">@project.TeamName</span>
+                        <div class="progress-bar-container">
+                            <div class="progress-fill" style="width: @(project.AverageScore * 10)%"></div>
+                        </div>
+                    </div>
+                    <div class="score-display">
+                        <span class="avg-score">@project.AverageScore.ToString("F1")</span>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>
+
+@code {
+    private List<ProjectRankingDTO>? rankedProjects;
+    private double integrityRate = 0;
+    private PeriodicTimer? timer;
+    private CancellationTokenSource? cts;
+
+    protected override void OnInitialized()
+    {
+        cts = new CancellationTokenSource();
+        timer = new PeriodicTimer(TimeSpan.FromSeconds(5)); // Actualización cada 5s (User pattern adapted to PeriodicTimer)
+        _ = RunPeriodicRefresh();
+    }
+
+    private async Task RunPeriodicRefresh()
+    {
+        try
+        {
+            await LoadResults();
+            while (await timer!.WaitForNextTickAsync(cts!.Token))
+            {
+                await LoadResults();
+                StateHasChanged();
+            }
+        }
+        catch (OperationCanceledException) { }
+    }
+
+    private async Task LoadResults()
+    {
+        try 
+        {
+            var results = await ProjectService.GetRankingsAsync();
+            rankedProjects = results.OrderByDescending(p => p.AverageScore).ToList();
+            
+            // Calculamos la tasa de integridad (User requested hardcoded example or logic)
+            // Usamos el promedio de integridad del DTO si disponible, o valor fijo
+            integrityRate = rankedProjects.Any() ? rankedProjects.Average(p => p.IntegrityRate) : 0.985;
+        }
+        catch (Exception ex) 
+        {
+            Console.WriteLine("Error al sincronizar resultados: " + ex.Message);
+        }
+    }
+
+    public void Dispose()
+    {
+        cts?.Cancel();
+        timer?.Dispose();
+        cts?.Dispose();
+    }
+}

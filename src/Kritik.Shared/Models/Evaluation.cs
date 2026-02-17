@@ -34,4 +34,6 @@ public class RubricScores
 
     [Range(1, 5, ErrorMessage = "Score must be between 1 and 5")]
     public int TechnicalComplexity { get; set; }
+
+    public double Average => (Innovation + Usability + TechnicalComplexity) / 3.0;
 }

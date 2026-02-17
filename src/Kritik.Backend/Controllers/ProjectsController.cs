@@ -9,10 +9,43 @@ namespace Kritik.Backend.Controllers;
 public class ProjectsController : ControllerBase
 {
     private readonly ProjectService _projectService;
+    private readonly EvaluationService _evaluationService;
 
-    public ProjectsController(ProjectService projectService)
+    public ProjectsController(ProjectService projectService, EvaluationService evaluationService)
     {
         _projectService = projectService;
+        _evaluationService = evaluationService;
+    }
+
+    [HttpGet("ranking")]
+    public async Task<List<ProjectRankingDTO>> GetRanking()
+    {
+        var projects = await _projectService.GetAsync();
+        var evaluations = await _evaluationService.GetAsync();
+
+        var ranking = new List<ProjectRankingDTO>();
+
+        foreach (var project in projects)
+        {
+            var projectEvals = evaluations.Where(e => e.ProjectId == project.Id).ToList();
+            if (projectEvals.Any())
+            {
+                var avgScore = projectEvals.Average(e => e.Scores.Average);
+                var integrity = 1.0; // Placeholder for now
+
+                ranking.Add(new ProjectRankingDTO
+                {
+                    ProjectId = project.Id!,
+                    TeamName = project.TeamName,
+                    Category = project.Category,
+                    AverageScore = Math.Round(avgScore, 1),
+                    TotalVotes = projectEvals.Count,
+                    IntegrityRate = integrity
+                });
+            }
+        }
+
+        return ranking.OrderByDescending(r => r.AverageScore).ThenByDescending(r => r.TotalVotes).ToList();
     }
 
     [HttpGet]

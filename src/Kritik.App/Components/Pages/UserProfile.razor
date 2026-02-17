@@ -1,0 +1,74 @@
+@page "/profile"
+@using Kritik.Shared.Models
+@using Kritik.App.Services
+@inject IJSRuntime JSRuntime
+@inject NavigationManager NavigationManager
+
+<div class="profile-container">
+    <div class="profile-header card">
+        <div class="avatar-circle">
+            @(user?.FullName?.Substring(0, 1) ?? "U")
+        </div>
+        <h3 class="tech-blue-text">@(user?.FullName ?? "Usuario Invitado")</h3>
+        <span class="role-badge">@(user?.Role ?? "Evaluador")</span>
+    </div>
+
+    <div class="settings-section card">
+        <h4>Preferencias de Interfaz</h4>
+        <p class="instruction-text">Personaliza cómo ves el Kiosko según la iluminación del lugar.</p>
+        
+        <div class="theme-switch">
+            <label>Modo de Pantalla</label>
+            <div class="button-group">
+                <button class="btn-theme @(!isDarkMode ? "active" : "")" @onclick="() => SetTheme(false)">
+                    ☀️ Día
+                </button>
+                <button class="btn-theme @(isDarkMode ? "active" : "")" @onclick="() => SetTheme(true)">
+                    🌙 Noche
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="stats-card card">
+        <h4>Tu Actividad</h4>
+        <p>Evaluaciones realizadas: <span class="highlight">@evaluationCount</span></p>
+    </div>
+
+    <div class="logout-section">
+        <button class="btn btn-outline-danger w-100" @onclick="Logout">Cerrar Sesión</button>
+    </div>
+</div>
+
+@code {
+    private User? user;
+    private int evaluationCount = 0;
+    private bool isDarkMode = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Simulación de datos de usuario (Mock) ya que no hay autenticación real implementada aún
+        // En producción: user = await Http.GetFromJsonAsync<User>("api/auth/me");
+        user = new User 
+        { 
+            FullName = "Marlene Chablé", 
+            Role = "Profesor", 
+            Username = "marlene" 
+        };
+        
+        
+        evaluationCount = 12; // KPI simulado
+        await Task.CompletedTask;
+    }
+
+    private async Task SetTheme(bool dark)
+    {
+        isDarkMode = dark;
+        await JSRuntime.InvokeVoidAsync("setTheme", dark ? "dark-theme" : "light-theme");
+    }
+
+    private void Logout()
+    {
+        NavigationManager.NavigateTo("/");
+    }
+}

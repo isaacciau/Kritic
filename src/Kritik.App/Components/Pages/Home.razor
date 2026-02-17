@@ -1,5 +1,55 @@
 ﻿@page "/"
+@inject NavigationManager NavigationManager
 
-<h1>Hello, world!</h1>
+<PageTitle>Kritik - Kiosko</PageTitle>
 
-Welcome to your new app.
+<div class="kiosk-container">
+    <div class="logo-section">
+        <h1 class="animate-entrance">KRITIK</h1>
+        <p class="subtitle">Sistema de Evaluación de Proyectos</p>
+    </div>
+
+    <div class="role-selection">
+        <div class="card role-card student-card" @onclick="SelectStudent">
+            <div class="role-icon">🎓</div>
+            <h2>Alumno</h2>
+            <p>Votación rápida</p>
+        </div>
+
+        <div class="card role-card professor-card" @onclick="SelectProfessor">
+            <div class="role-icon">👨‍🏫</div>
+            <h2>Profesor</h2>
+            <p>Evaluación técnica</p>
+        </div>
+    </div>
+
+    <div class="organizer-actions" style="margin-top: 3rem; display: flex; flex-direction: column; gap: 10px;">
+        <button class="btn btn-link" @onclick="GoToResults">📊 Ver Resultados en Tiempo Real</button>
+        <button class="btn btn-link" @onclick="GoToProfile">👤 Mi Perfil</button>
+    </div>
+</div>
+
+
+
+@code {
+    private void SelectStudent()
+    {
+        NavigationManager.NavigateTo("/projects");
+    }
+
+    private void SelectProfessor()
+    {
+        // Por ahora, ambos roles van a la lista de proyectos, pero podríamos filtrar
+        NavigationManager.NavigateTo("/projects");
+    }
+
+    private void GoToResults()
+    {
+        NavigationManager.NavigateTo("/resultados");
+    }
+
+    private void GoToProfile()
+    {
+        NavigationManager.NavigateTo("/profile");
+    }
+}

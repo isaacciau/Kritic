@@ -1,0 +1,68 @@
+@page "/projects"
+@using Kritik.Shared.Models
+@using Kritik.App.Services
+@inject ProjectService ProjectService
+@inject NavigationManager NavigationManager
+
+<div class="projects-container">
+    <h3 class="tech-blue-text">Seleccionar Proyecto</h3>
+    <p class="instruction-text">Elige un proyecto para iniciar la evaluación inmediata.</p>
+
+    @if (isLoading)
+    {
+        <div class="loading-spinner">Cargando proyectos...</div>
+    }
+    else if (projects == null || !projects.Any())
+    {
+        <div class="alert-warning">No hay proyectos precargados para este evento.</div>
+    }
+    else
+    {
+        <div class="project-grid">
+            @foreach (var proj in projects)
+            {
+                <div class="project-card" @onclick="() => SeleccionarProyecto(proj.Id!)">
+                    <div class="card-header">
+                        <h4>@proj.TeamName</h4>
+                        <span class="badge-tech">ID: @(proj.Id?.Substring(0, min(5, proj.Id.Length)) ?? "N/A")</span>
+                    </div>
+                    <p class="project-desc">@proj.Description</p>
+                     <div class="card-footer">
+                         <span class="badge-category">@proj.Category</span>
+                        <span class="action-link">Evaluar ahora →</span>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>
+
+@code {
+    private List<Project>? projects;
+    private bool isLoading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try 
+        {
+            isLoading = true;
+            // Usamos ProjectService para mantener la arquitectura limpia
+            projects = await ProjectService.GetProjectsAsync();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error al cargar proyectos: {ex.Message}");
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private void SeleccionarProyecto(string id)
+    {
+        NavigationManager.NavigateTo($"/evaluate/{id}");
+    }
+
+    private int min(int a, int b) => a < b ? a : b;
+}

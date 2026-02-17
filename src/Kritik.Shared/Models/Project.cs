@@ -18,4 +18,5 @@ public class Project
 
     public List<Video> Videos { get; set; } = new();
     public List<Document> Documents { get; set; } = new();
+    public string ImageUrl { get; set; } = "https://via.placeholder.com/150";
 }

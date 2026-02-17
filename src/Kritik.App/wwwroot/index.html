@@ -24,7 +24,11 @@
     </div>
 
     <script src="_framework/blazor.webview.js" autostart="false"></script>
-
+    <script>
+        window.setTheme = (theme) => {
+            document.body.className = theme;
+        };
+    </script>
 </body>
 
 </html>
