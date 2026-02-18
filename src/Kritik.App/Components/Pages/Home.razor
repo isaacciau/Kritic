@@ -1,55 +1,34 @@
 ﻿@page "/"
 @inject NavigationManager NavigationManager
+<div class="container text-center mt-5">
+    <h1 class="tech-gradient-text display-4 mb-3">Kritik - Inicio</h1>
+    <p class="lead mb-5 text-muted">Selecciona tu rol para comenzar</p>
 
-<PageTitle>Kritik - Kiosko</PageTitle>
-
-<div class="kiosk-container">
-    <div class="logo-section">
-        <h1 class="animate-entrance">KRITIK</h1>
-        <p class="subtitle">Sistema de Evaluación de Proyectos</p>
-    </div>
-
-    <div class="role-selection">
-        <div class="card role-card student-card" @onclick="SelectStudent">
-            <div class="role-icon">🎓</div>
-            <h2>Alumno</h2>
-            <p>Votación rápida</p>
+    <div class="cards-wrapper d-flex justify-content-center gap-4 flex-wrap">
+        <div class="role-card student p-4 shadow-sm bg-white rounded-4" style="cursor:pointer; width: 280px;" @onclick="SelectStudent">
+            <div class="icon-bubble display-1 mb-3">🎓</div>
+            <div class="card-info">
+                <h2 class="h4 fw-bold">Soy Alumno</h2>
+                <p class="text-secondary">Votar por mis favoritos</p>
+            </div>
+            <div class="arrow-icon mt-3 h3 text-primary">➜</div>
         </div>
-
-        <div class="card role-card professor-card" @onclick="SelectProfessor">
-            <div class="role-icon">👨‍🏫</div>
-            <h2>Profesor</h2>
-            <p>Evaluación técnica</p>
+        <div class="role-card professor p-4 shadow-sm bg-white rounded-4" style="cursor:pointer; width: 280px;" @onclick="SelectProfessor">
+            <div class="icon-bubble display-1 mb-3">👨‍🏫</div>
+            <div class="card-info">
+                <h2 class="h4 fw-bold">Soy Profesor</h2>
+                <p class="text-secondary">Evaluación técnica oficial</p>
+            </div>
+            <div class="arrow-icon mt-3 h3 text-primary">➜</div>
         </div>
     </div>
-
-    <div class="organizer-actions" style="margin-top: 3rem; display: flex; flex-direction: column; gap: 10px;">
-        <button class="btn btn-link" @onclick="GoToResults">📊 Ver Resultados en Tiempo Real</button>
-        <button class="btn btn-link" @onclick="GoToProfile">👤 Mi Perfil</button>
+    <div class="footer-actions mt-5">
+        <button class="btn btn-outline-dark rounded-pill px-4 py-2" @onclick="GoToResults">🏆 Ver Resultados en Vivo</button>
     </div>
 </div>
 
-
-
 @code {
-    private void SelectStudent()
-    {
-        NavigationManager.NavigateTo("/projects");
-    }
-
-    private void SelectProfessor()
-    {
-        // Por ahora, ambos roles van a la lista de proyectos, pero podríamos filtrar
-        NavigationManager.NavigateTo("/projects");
-    }
-
-    private void GoToResults()
-    {
-        NavigationManager.NavigateTo("/resultados");
-    }
-
-    private void GoToProfile()
-    {
-        NavigationManager.NavigateTo("/profile");
-    }
+    private void SelectStudent() => NavigationManager.NavigateTo("/projects");
+    private void SelectProfessor() => NavigationManager.NavigateTo("/projects");
+    private void GoToResults() => NavigationManager.NavigateTo("/resultados");
 }

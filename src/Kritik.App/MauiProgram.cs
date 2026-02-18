@@ -22,7 +22,7 @@ public static class MauiProgram
 #endif
         
         // Configure HttpClient for Kritik.Backend
-        builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri("http://192.168.100.62:5229/") });
+        builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri("http://192.168.0.130:5229/") });
 
         builder.Services.AddScoped<Services.ValidationService>();
 
