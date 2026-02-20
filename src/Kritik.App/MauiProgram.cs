@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using Microsoft.Maui.Devices;
 
 namespace Kritik.App;
 
@@ -22,7 +23,12 @@ public static class MauiProgram
 #endif
         
         // Configure HttpClient for Kritik.Backend
-        builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri("http://192.168.0.130:5229/") });
+        string baseAddress = DeviceInfo.Platform == DevicePlatform.Android ? "http://10.0.2.2:5229" : "http://localhost:5229";
+        
+        // Allow specific IP override for physical Android devices if needed
+        // baseAddress = "http://192.168.0.130:5229"; 
+
+        builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(baseAddress) });
 
         builder.Services.AddScoped<Services.ValidationService>();
 

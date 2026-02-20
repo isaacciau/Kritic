@@ -1,34 +1,43 @@
 ﻿@page "/"
 @inject NavigationManager NavigationManager
-<div class="container text-center mt-5">
-    <h1 class="tech-gradient-text display-4 mb-3">Kritik - Inicio</h1>
-    <p class="lead mb-5 text-muted">Selecciona tu rol para comenzar</p>
 
-    <div class="cards-wrapper d-flex justify-content-center gap-4 flex-wrap">
-        <div class="role-card student p-4 shadow-sm bg-white rounded-4" style="cursor:pointer; width: 280px;" @onclick="SelectStudent">
-            <div class="icon-bubble display-1 mb-3">🎓</div>
-            <div class="card-info">
-                <h2 class="h4 fw-bold">Soy Alumno</h2>
-                <p class="text-secondary">Votar por mis favoritos</p>
-            </div>
-            <div class="arrow-icon mt-3 h3 text-primary">➜</div>
-        </div>
-        <div class="role-card professor p-4 shadow-sm bg-white rounded-4" style="cursor:pointer; width: 280px;" @onclick="SelectProfessor">
-            <div class="icon-bubble display-1 mb-3">👨‍🏫</div>
-            <div class="card-info">
-                <h2 class="h4 fw-bold">Soy Profesor</h2>
-                <p class="text-secondary">Evaluación técnica oficial</p>
-            </div>
-            <div class="arrow-icon mt-3 h3 text-primary">➜</div>
-        </div>
+<div class="d-flex flex-column align-items-center justify-content-center vh-100 px-4">
+    <div class="mb-5 text-center">
+        <!-- Logo Text -->
+        <h1 style="font-size: 3rem; font-weight: 800; letter-spacing: -1px; margin-bottom: 0;">Kritik</h1>
     </div>
-    <div class="footer-actions mt-5">
-        <button class="btn btn-outline-dark rounded-pill px-4 py-2" @onclick="GoToResults">🏆 Ver Resultados en Vivo</button>
+
+    <div class="w-100" style="max-width: 340px;">
+        <!-- Input -->
+        <div class="mb-4">
+            <input type="text" class="input-modern" placeholder="ID Institucional" />
+        </div>
+
+        <!-- Primary Button -->
+        <button class="btn-primary-yellow mb-4" @onclick="Login">
+            Iniciar Sesión
+        </button>
+
+        <!-- Divider -->
+        <div class="d-flex align-items-center mb-4">
+            <div style="flex: 1; height: 1px; background-color: #E0E0E0;"></div>
+            <span class="mx-3 text-muted text-small" style="font-size: 0.9rem;">o</span>
+            <div style="flex: 1; height: 1px; background-color: #E0E0E0;"></div>
+        </div>
+
+        <!-- Secondary Button -->
+        <button class="btn-outline-custom mb-4" @onclick="LoginAsGuest">
+            Acceso como Invitado / Sinodal
+        </button>
+
+        <!-- Forgot Link -->
+        <div class="text-center">
+            <a href="#" class="text-muted" style="text-decoration: none; font-size: 0.9rem;">¿Olvidaste tu ID?</a>
+        </div>
     </div>
 </div>
 
 @code {
-    private void SelectStudent() => NavigationManager.NavigateTo("/projects");
-    private void SelectProfessor() => NavigationManager.NavigateTo("/projects");
-    private void GoToResults() => NavigationManager.NavigateTo("/resultados");
+    private void Login() => NavigationManager.NavigateTo("/projects");
+    private void LoginAsGuest() => NavigationManager.NavigateTo("/projects"); 
 }

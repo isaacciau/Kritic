@@ -1,24 +1,35 @@
 ﻿@inherits LayoutComponentBase
 
-<div class="page @themeClass">
-    <div class="sidebar">
-        <NavMenu />
-    </div>
-
+<div class="page-container" style="max-width: 480px; margin: 0 auto; min-height: 100vh; background: #fff; position: relative;">
     <main>
-        <div class="top-row px-4">
-            <span class="status-badge">Kiosko Digital Activo</span>
-            <UserProfileSmall />
-        </div>
-
-        <article class="content px-4">
-            @Body
-        </article>
+        @Body
     </main>
-    <NotificationToast />
 </div>
 
+<style>
+    /* Ensure the app behaves like a mobile app even on desktop browser for testing */
+    body {
+        background-color: #f0f2f5; /* Grey background outside the mobile frame */
+        display: flex;
+        justify-content: center;
+    }
+    
+    .page-container {
+        box-shadow: 0 0 20px rgba(0,0,0,0.05);
+    }
+
+    @@media (max-width: 576px) {
+        body {
+            background-color: #fff;
+            display: block;
+        }
+        .page-container {
+            max-width: 100%;
+            box-shadow: none;
+        }
+    }
+</style>
+
 @code {
-    private string themeClass => isDarkMode ? "dark-theme" : "light-theme";
-    private bool isDarkMode = false; // Se vincula con el UserProfile
+    // No extra logic needed for the clean layout
 }

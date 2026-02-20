@@ -5,28 +5,34 @@
 @implements IDisposable
 
 <div class="results-container">
-    <h3 class="tech-blue-text">Ranking de Proyectos en Vivo</h3>
-    <p class="stats-overview">Integridad de Datos: <span class="highlight">@integrityRate.ToString("P1")</span></p>
+    <div class="header-section text-center mb-4">
+        <h3 class="tech-gradient-text">Ranking de Proyectos en Vivo</h3>
+        <p class="stats-overview text-muted">Integridad de Datos: <span class="highlight-text">@integrityRate.ToString("P1")</span></p>
+    </div>
 
     @if (rankedProjects == null)
     {
-        <div class="loading">Sincronizando métricas...</div>
+        <div class="loading-state text-center p-5">
+            <div class="spinner-border text-primary" role="status"></div>
+            <p class="mt-3 text-muted">Sincronizando métricas...</p>
+        </div>
     }
     else
     {
         <div class="ranking-list">
             @foreach (var (project, index) in rankedProjects.Select((p, i) => (p, i)))
             {
-                <div class="ranking-item @(index == 0 ? "top-project" : "")">
-                    <div class="rank-number">#@(index + 1)</div>
-                    <div class="project-details">
-                        <span class="project-name">@project.TeamName</span>
-                        <div class="progress-bar-container">
-                            <div class="progress-fill" style="width: @(project.AverageScore * 10)%"></div>
+                <div class="ranking-item card d-flex flex-row align-items-center mb-3 p-3 @(index == 0 ? "border-primary" : "")">
+                    <div class="rank-number h4 fw-bold me-4 mb-0" style="width: 40px; color: var(--primary-color);">#@(index + 1)</div>
+                    <div class="project-details flex-grow-1">
+                        <h5 class="project-name mb-1 fw-bold" style="color: var(--text-dark);">@project.TeamName</h5>
+                        <div class="progress" style="height: 8px; background-color: var(--border-color);">
+                            <div class="progress-bar" role="progressbar" style="width: @(project.AverageScore * 10)%; background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));" aria-valuenow="@(project.AverageScore * 10)" aria-valuemin="0" aria-valuemax="100"></div>
                         </div>
                     </div>
-                    <div class="score-display">
-                        <span class="avg-score">@project.AverageScore.ToString("F1")</span>
+                    <div class="score-display ms-4 text-end">
+                        <span class="avg-score h4 fw-bold mb-0" style="color: var(--text-dark);">@project.AverageScore.ToString("F1")</span>
+                        <div class="small text-muted">Puntos</div>
                     </div>
                 </div>
             }

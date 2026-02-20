@@ -7,73 +7,114 @@
 @inject ToastService ToastService
 @inject ValidationService ValidationService
 
-@if (hasVoted)
-{
-    <div class="container mt-5 text-center">
-        <div class="alert alert-warning shadow-sm rounded-4 p-5">
-            <h3 class="h4 fw-bold">⚠️ Ya has evaluado este proyecto</h3>
-            <p class="text-secondary">Solo se permite una evaluación por proyecto.</p>
-            <button class="btn btn-primary rounded-pill px-4 mt-3" @onclick="GoBack">Volver a la lista</button>
-        </div>
+<div class="d-flex flex-column h-100 bg-white">
+    <!-- Header -->
+    <div class="d-flex align-items-center p-4 border-bottom">
+        <button class="btn btn-link text-dark p-0 me-3" @onclick="GoBack" style="text-decoration: none;">
+            <i class="bi bi-arrow-left fs-4"></i>
+        </button>
+        <h5 class="m-0 flex-grow-1 text-center pe-4">Evaluación Kritik</h5>
     </div>
-}
-else if (project != null)
-{
-    <EditForm Model="@evaluation" OnValidSubmit="HandleSubmit" class="form-content container mt-4" style="max-width: 600px;">
-        <DataAnnotationsValidator />
-        
-        <div class="text-center mb-5">
-             <h2 class="tech-gradient-text">@project.TeamName</h2>
-             <p class="text-secondary">@project.Description</p>
-        </div>
 
-        <div class="criterion-card bg-white p-4 rounded-4 shadow-sm mb-4">
-            <div class="criterion-header d-flex justify-content-between align-items-center mb-3">
-                <div class="d-flex align-items-center gap-2">
-                    <span class="emoji h4 m-0">💡</span>
-                    <label class="fw-bold m-0">Innovación</label>
+    @if (hasVoted) 
+    {
+        <!-- Success State / Already Voted -->
+        <div class="d-flex flex-column align-items-center justify-content-center flex-grow-1 p-4 text-center">
+             <div class="rounded-circle d-flex align-items-center justify-content-center mb-4" style="width: 80px; height: 80px; background-color: #e6fcf5;">
+                 <div class="rounded-circle d-flex align-items-center justify-content-center bg-success text-white" style="width: 48px; height: 48px;">
+                     <i class="bi bi-check-lg fs-3"></i>
+                 </div>
+             </div>
+             <h3 class="fw-bold mb-3">Evaluación Sincronizada con Éxito</h3>
+             <p class="text-muted mb-5">¡Buen trabajo! Faltan 14 proyectos para completar la jornada al 100%.</p>
+             <button class="btn-primary-yellow" @onclick="GoBack">Volver al Catálogo</button>
+        </div>
+    }
+    else if (project != null)
+    {
+        <EditForm Model="@evaluation" OnValidSubmit="HandleSubmit" class="d-flex flex-column flex-grow-1">
+            <DataAnnotationsValidator />
+            
+            <div class="p-4 flex-grow-1" style="overflow-y: auto;">
+                <p class="text-muted small fw-bold mb-1">PROYECTO A EVALUAR</p>
+                <h2 class="fw-bold mb-3">@project.TeamName</h2>
+                <p class="text-secondary mb-4">Evalúa cada criterio del 1 al 10 deslizando la barra amarilla.</p>
+
+                <!-- Criteria List -->
+                <div class="mb-4">
+                    <!-- Innovacion -->
+                    <div class="mb-4">
+                        <div class="d-flex justify-content-between mb-2">
+                             <label class="fw-bold">Innovación</label>
+                             <span class="fw-bold fs-5">@evaluation.Scores.Innovation<span class="text-muted fs-6">/10</span></span>
+                        </div>
+                        <input type="range" class="custom-range" min="1" max="10" @bind="evaluation.Scores.Innovation" @bind:event="oninput" style="background: linear-gradient(to right, #FFC107 0%, #FFC107 @(evaluation.Scores.Innovation * 10)%, #F1F3F5 @(evaluation.Scores.Innovation * 10)%, #F1F3F5 100%);"/>
+                        <div class="d-flex justify-content-between text-muted-small mt-1">
+                            <span>1</span><span>5</span><span>10</span>
+                        </div>
+                    </div>
+
+                    <!-- Usabilidad -->
+                    <div class="mb-4">
+                        <div class="d-flex justify-content-between mb-2">
+                             <label class="fw-bold">UI/UX</label>
+                             <span class="fw-bold fs-5">@evaluation.Scores.Usability<span class="text-muted fs-6">/10</span></span>
+                        </div>
+                        <input type="range" class="custom-range" min="1" max="10" @bind="evaluation.Scores.Usability" @bind:event="oninput" style="background: linear-gradient(to right, #FFC107 0%, #FFC107 @(evaluation.Scores.Usability * 10)%, #F1F3F5 @(evaluation.Scores.Usability * 10)%, #F1F3F5 100%);"/>
+                         <div class="d-flex justify-content-between text-muted-small mt-1">
+                            <span>1</span><span>5</span><span>10</span>
+                        </div>
+                    </div>
+
+                     <!-- Complejidad -->
+                    <div class="mb-4">
+                        <div class="d-flex justify-content-between mb-2">
+                             <label class="fw-bold">Complejidad Técnica</label>
+                             <span class="fw-bold fs-5">@evaluation.Scores.TechnicalComplexity<span class="text-muted fs-6">/10</span></span>
+                        </div>
+                        <input type="range" class="custom-range" min="1" max="10" @bind="evaluation.Scores.TechnicalComplexity" @bind:event="oninput" style="background: linear-gradient(to right, #FFC107 0%, #FFC107 @(evaluation.Scores.TechnicalComplexity * 10)%, #F1F3F5 @(evaluation.Scores.TechnicalComplexity * 10)%, #F1F3F5 100%);"/>
+                         <div class="d-flex justify-content-between text-muted-small mt-1">
+                            <span>1</span><span>5</span><span>10</span>
+                        </div>
+                    </div>
                 </div>
-                <span class="score-badge badge bg-primary rounded-pill fs-6">@evaluation.Scores.Innovation</span>
-            </div>
-            <input type="range" class="form-range w-100" min="1" max="5" @bind="evaluation.Scores.Innovation" @bind:event="oninput" />
-            <div class="range-labels d-flex justify-content-between text-muted small mt-2"><span>Bajo</span><span>Excelente</span></div>
-        </div>
 
-        <div class="criterion-card bg-white p-4 rounded-4 shadow-sm mb-4">
-            <div class="criterion-header d-flex justify-content-between align-items-center mb-3">
-                <div class="d-flex align-items-center gap-2">
-                    <span class="emoji h4 m-0">🎨</span>
-                    <label class="fw-bold m-0">Diseño y UX</label>
+                <!-- Evidence -->
+                <div class="mb-4">
+                    <label class="fw-bold mb-2 d-block">Evidencia Visual</label>
+                    <button type="button" class="btn btn-outline-dark w-100 py-3 d-flex align-items-center justify-content-center gap-2" style="border-radius: 12px; border-width: 1px;">
+                        <i class="bi bi-camera-fill"></i> Tomar Foto de Evidencia
+                    </button>
                 </div>
-                <span class="score-badge badge bg-info text-white rounded-pill fs-6">@evaluation.Scores.Usability</span>
-            </div>
-            <input type="range" class="form-range w-100" min="1" max="5" @bind="evaluation.Scores.Usability" @bind:event="oninput" />
-            <div class="range-labels d-flex justify-content-between text-muted small mt-2"><span>Confuso</span><span>Intuitivo</span></div>
-        </div>
 
-        <div class="criterion-card bg-white p-4 rounded-4 shadow-sm mb-4">
-            <div class="criterion-header d-flex justify-content-between align-items-center mb-3">
-                <div class="d-flex align-items-center gap-2">
-                    <span class="emoji h4 m-0">⚙️</span>
-                    <label class="fw-bold m-0">Complejidad</label>
+                 <!-- Comments -->
+                <div class="mb-4">
+                    <label class="fw-bold mb-2 d-block">Comentarios</label>
+                    <textarea class="form-control bg-light border-0" rows="4" placeholder="Escribe tus observaciones detalladas aquí..." style="resize: none; border-radius: 12px; padding: 16px;"></textarea>
                 </div>
-                <span class="score-badge badge bg-secondary rounded-pill fs-6">@evaluation.Scores.TechnicalComplexity</span>
             </div>
-            <input type="range" class="form-range w-100" min="1" max="5" @bind="evaluation.Scores.TechnicalComplexity" @bind:event="oninput" />
-            <div class="range-labels d-flex justify-content-between text-muted small mt-2"><span>Básica</span><span>Avanzada</span></div>
-        </div>
 
-        <div class="action-area mt-5 mb-5">
-            <button type="submit" class="btn-premium" disabled="@isSubmitting">
-                @if (isSubmitting) { <span>Enviando...</span> } else { <span>🚀 Enviar Evaluación</span> }
-            </button>
-        </div>
-    </EditForm>
-}
-else
-{
-    <div class="loader text-center mt-5"><div class="spinner-border text-primary" role="status"></div></div>
-}
+            <!-- Footer Action -->
+            <div class="p-4 bg-white border-top">
+                <button type="submit" class="btn-primary-yellow" disabled="@isSubmitting">
+                    @if (isSubmitting) { <span>Enviando...</span> } else { <span>Enviar Evaluación</span> }
+                </button>
+                 <p class="text-center text-muted-small mt-3 mb-0">Completa todos los campos para continuar</p>
+            </div>
+        </EditForm>
+    }
+    else
+    {
+         <div class="text-center mt-5"><div class="spinner-border text-warning" role="status"></div></div>
+    }
+</div>
+
+<style>
+    /* Inline helper for dynamic slider background updates */
+    input[type=range]::-webkit-slider-runnable-track {
+        background: transparent; /* Handled by inline style on input */
+    }
+</style>
 
 @code {
     [Parameter] public string ProjectId { get; set; } = null!;
@@ -85,21 +126,28 @@ else
     protected override async Task OnInitializedAsync() {
         evaluation.ProjectId = ProjectId;
         evaluation.EvaluatorId = Preferences.Default.Get("UserId", "mobile-kiosk-user");
-        evaluation.Scores = new RubricScores { Innovation = 3, Usability = 3, TechnicalComplexity = 3 };
+        // Initialize with default values roughly in middle
+        evaluation.Scores = new RubricScores { Innovation = 5, Usability = 5, TechnicalComplexity = 5 };
+        
+        // Check if already voted
         hasVoted = await ValidationService.HasVotedAsync(ProjectId, evaluation.EvaluatorId);
-        if(!hasVoted) project = await ProjectService.GetProjectByIdAsync(ProjectId);
+        
+        if(!hasVoted) {
+             project = await ProjectService.GetProjectByIdAsync(ProjectId);
+             if (project == null) project = new Project { TeamName = "Proyecto Demo", Description = "Descripcion..." }; // Fallback
+        }
     }
+
     private async Task HandleSubmit() {
         if (hasVoted) return;
         isSubmitting = true;
         var success = await EvaluationService.SubmitEvaluationAsync(evaluation);
         if (success) {
             ValidationService.RegisterVote(ProjectId);
-            ToastService.Show("¡Enviado!", "success");
-            await Task.Delay(1500);
-            NavigationManager.NavigateTo("/projects");
+            hasVoted = true; // Switch to Success View
         }
         isSubmitting = false;
     }
+
     private void GoBack() => NavigationManager.NavigateTo("/projects");
 }
